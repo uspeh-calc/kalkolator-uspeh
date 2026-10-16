@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Успех Калкулатор</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: linear-gradient(160deg, #dbeafe 0%, #e0f2fe 40%, #f0f9ff 100%);
+      color: #0f172a;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ===== Анимиран фон ===== */
+    .bg-decor {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .bg-decor span {
+      position: absolute;
+      font-size: 2.6rem;
+      opacity: 0.14;
+      user-select: none;
+      animation: float 8s ease-in-out infinite;
+    }
+
+    .bg-decor .d1 { top: 7%; left: 5%; animation-delay: 0s; }
+    .bg-decor .d2 { top: 15%; right: 7%; animation-delay: 1.2s; font-size: 2.3rem; }
+    .bg-decor .d3 { top: 38%; left: 3%; animation-delay: 2.4s; font-size: 2.5rem; }
+    .bg-decor .d4 { top: 52%; right: 4%; animation-delay: 0.8s; }
+    .bg-decor .d5 { bottom: 16%; left: 8%; animation-delay: 1.8s; font-size: 2.2rem; }
+    .bg-decor .d6 { bottom: 7%; right: 10%; animation-delay: 3s; font-size: 2.4rem; }
+    .bg-decor .d7 { top: 28%; left: 20%; animation-delay: 2s; font-size: 1.9rem; opacity: 0.1; }
+    .bg-decor .d8 { top: 68%; right: 18%; animation-delay: 0.5s; font-size: 2rem; opacity: 0.1; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-18px) rotate(6deg); }
+    }
+
+    /* Меки кръгове на фона */
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(60px);
+      opacity: 0.35;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .blob1 {
+      width: 280px;
+      height: 280px;
+      background: #93c5fd;
+      top: -80px;
+      right: -60px;
+      animation: blobMove 12s ease-in-out infinite;
+    }
+
+    .blob2 {
+      width: 220px;
+      height: 220px;
+      background: #bfdbfe;
+      bottom: 10%;
+      left: -70px;
+      animation: blobMove 15s ease-in-out infinite reverse;
+    }
+
+    @keyframes blobMove {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(30px, 20px); }
+    }
+
+    /* ===== Екрани ===== */
+    .screen {
+      display: none;
+      min-height: 100vh;
+      padding: 24px 20px;
+      position: relative;
+      z-index: 1;
+      animation: fadeIn 0.35s ease;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== Начален екран ===== */
+    .home {
+      max-width: 440px;
+      margin: 0 auto;
+      min-height: calc(100vh - 48px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+    }
+
+    .help-btn {
+      position: absolute;
+      top: 8px;
+      right: 0;
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      border: none;
+      background: white;
+      font-size: 1.4rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+      transition: 0.25s;
+      animation: pulse 2.5s infinite;
+    }
+
+    .help-btn:hover {
+      transform: scale(1.08);
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 4px 14px rgba(0,0,0,0.08); }
+      50% { box-shadow: 0 4px 20px rgba(59,130,246,0.25); }
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .logo {
+      width: 92px;
+      height: 92px;
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      border-radius: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      color: white;
+      font-weight: 700;
+      margin: 0 auto 20px;
+      box-shadow: 0 16px 40px rgba(59, 130, 246, 0.35);
+      animation: logoIn 0.6s ease;
+    }
+
+    @keyframes logoIn {
+      from { transform: scale(0.7); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .hero h1 {
+      font-size: 2.15rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      line-height: 1.2;
+      animation: fadeUp 0.5s ease 0.15s both;
+    }
+
+    .hero p {
+      color: #475569;
+      font-size: 1.05rem;
+      line-height: 1.55;
+      animation: fadeUp 0.5s ease 0.25s both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .menu-btn {
+      width: 100%;
+      background: white;
+      border: none;
+      border-radius: 20px;
+      padding: 22px;
+      margin-bottom: 16px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.25s;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .menu-btn.blue { animation-delay: 0.35s; }
+    .menu-btn.green { animation-delay: 0.45s; }
+
+    .menu-btn:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 14px 30px rgba(0,0,0,0.1);
+    }
+
+    .menu-btn:active {
+      transform: scale(0.98);
+    }
+
+    .menu-btn .icon {
+      width: 58px;
+      height: 58px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.7rem;
+      flex-shrink: 0;
+      transition: 0.25s;
+    }
+
+    .menu-btn:hover .icon {
+      transform: scale(1.08);
+    }
+
+    .menu-btn.blue .icon { background: #dbeafe; }
+    .menu-btn.green .icon { background: #dcfce7; }
+
+    .menu-btn .text h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .menu-btn .text p {
+      font-size: 0.92rem;
+      color: #64748b;
+      margin: 0;
+    }
+
+    .footer-text {
+      text-align: center;
+      margin-top: 26px;
+      font-size: 0.85rem;
+      color: #64748b;
+      animation: fadeUp 0.5s ease 0.55s both;
+    }
+
+    /* ===== Модал ===== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal {
+      background: white;
+      border-radius: 24px;
+      width: 100%;
+      max-width: 380px;
+      padding: 28px 24px;
+      position: relative;
+      max-height: 85vh;
+      overflow-y: auto;
+      animation: modalIn 0.3s ease;
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.9) translateY(20px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: #f1f5f9;
+      border-radius: 10px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .modal-close:hover {
+      background: #e2e8f0;
+    }
+
+    .modal h2 {
+      font-size: 1.35rem;
+      margin-bottom: 16px;
+      padding-right: 30px;
+    }
+
+    .modal h3 {
+      font-size: 1.05rem;
+      margin: 18px 0 8px;
+      color: #1e40af;
+    }
+
+    .modal p, .modal li {
+      font-size: 0.95rem;
+      color: #475569;
+      line-height: 1.55;
+    }
+
+    .modal ul {
+      padding-left: 18px;
+    }
+
+    .modal li {
+      margin-bottom: 6px;
+    }
+
+    /* ===== Калкулатор екрани ===== */
+    .calc-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .back-btn {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      border: none;
+      background: white;
+      font-size: 1.3rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      transition: 0.2s;
+    }
+
+    .back-btn:hover {
+      transform: scale(1.05);
+    }
+
+    .calc-header h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .result-box {
+      background: white;
+      border-radius: 22px;
+      padding: 30px 20px;
+      text-align: center;
+      margin-bottom: 24px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+      transition: 0.3s;
+    }
+
+    .result-box .label {
+      font-size: 0.9rem;
+      color: #64748b;
+      margin-bottom: 6px;
+    }
+
+    .result-box .value {
+      font-size: 3.3rem;
+      font-weight: 700;
+      color: #0f172a;
+      transition: 0.3s;
+    }
+
+    .result-box .meta {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: #94a3b8;
+    }
+
+    .block {
+      background: white;
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+      animation: fadeUp 0.4s ease both;
+    }
+
+    .block-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #64748b;
+      margin-bottom: 14px;
+    }
+
+    .grades-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .g-btn {
+      flex: 1;
+      height: 58px;
+      border: none;
+      border-radius: 14px;
+      font-size: 1.4rem;
+      font-weight: 700;
+      background: #e0f2fe;
+      color: #0f172a;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+
+    .g-btn:hover {
+      background: #bae6fd;
+      transform: translateY(-2px);
+    }
+
+    .g-btn:active {
+      background: #3b82f6;
+      color: white;
+      transform: scale(0.95);
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .input-row input {
+      flex: 1;
+      height: 52px;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 0 16px;
+      font-size: 1.05rem;
+      outline: none;
+      font-family: inherit;
+      background: #f8fafc;
+      transition: 0.2s;
+    }
+
+    .input-row input:focus {
+      border-color: #3b82f6;
+      background: white;
+    }
+
+    .input-row button {
+      height: 52px;
+      padding: 0 20px;
+      border: none;
+      border-radius: 12px;
+      background: #0f172a;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .input-row button:hover {
+      background: #1e293b;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-height: 36px;
+    }
+
+    .chip {
+      background: #e0f2fe;
+      padding: 8px 12px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 1.05rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      animation: chipIn 0.25s ease;
+    }
+
+    @keyframes chipIn {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .chip button {
+      background: none;
+      border: none;
+      color: #ef4444;
+      font-size: 1.15rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .clear-btn {
+      width: 100%;
+      height: 48px;
+      margin-top: 12px;
+      border: 1.5px solid #e2e8f0;
+      background: white;
+      border-radius: 12px;
+      color: #64748b;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .clear-btn:hover {
+      border-color: #ef4444;
+      color: #ef4444;
+    }
+
+    .note {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #64748b;
+      margin-top: 20px;
+    }
+
+    .term-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .term-box {
+      background: #f0f9ff;
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .term-box label {
+      display: block;
+      font-size: 0.85rem;
+      color: #64748b;
+      margin-bottom: 8px;
+    }
+
+    .term-box input {
+      width: 100%;
+      height: 48px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: 700;
+      outline: none;
+      background: white;
+      transition: 0.2s;
+    }
+
+    .term-box input:focus {
+      border-color: #3b82f6;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Анимиран фон -->
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+
+  <div class="bg-decor">
+    <span class="d1">📚</span>
+    <span class="d2">✏️</span>
+    <span class="d3">🧮</span>
+    <span class="d4">📖</span>
+    <span class="d5">📝</span>
+    <span class="d6">🎓</span>
+    <span class="d7">📐</span>
+    <span class="d8">🖊️</span>
+  </div>
+
+  <!-- НАЧАЛЕН ЕКРАН -->
+  <div id="home" class="screen active">
+    <div class="home">
+      <button class="help-btn" onclick="openHelp()" title="Как се ползва">📖</button>
+
+      <div class="hero">
+        <div class="logo">У</div>
+        <h1>Успех<br>Калкулатор</h1>
+        <p>Смятай срочния и годишния си успех<br>бързо, лесно и без грешки</p>
+      </div>
+
+      <button class="menu-btn blue" onclick="showScreen('srochen')">
+        <div class="icon">📘</div>
+        <div class="text">
+          <h3>Срочен успех</h3>
+          <p>Добави оценките и виж средния за срока</p>
+        </div>
+      </button>
+
+      <button class="menu-btn green" onclick="showScreen('godishen')">
+        <div class="icon">📗</div>
+        <div class="text">
+          <h3>Годишен успех</h3>
+          <p>Въведи двата срока и виж годишния резултат</p>
+        </div>
+      </button>
+
+      <div class="footer-text">Направено за ученици</div>
+    </div>
+  </div>
+
+  <!-- ПРОЗОРЧЕ -->
+  <div class="modal-overlay" id="helpModal" onclick="closeHelp(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeHelp()">✕</button>
+      
+      <h2>Как се ползва?</h2>
+      
+      <p>Този сайт ти помага бързо да сметнеш средния и годишния си успех.</p>
+
+      <h3>📘 Срочен успех</h3>
+      <ul>
+        <li>Натисни бутоните от 2 до 6, за да добавяш оценки</li>
+        <li>Или напиши няколко наведнъж (примерно: 6 5 4 6)</li>
+        <li>Средният успех се смята автоматично</li>
+        <li>Оценките се запазват, дори да затвориш сайта</li>
+      </ul>
+
+      <h3>📗 Годишен успех</h3>
+      <ul>
+        <li>Въведи средния успех от I срок</li>
+        <li>Въведи средния успех от II срок</li>
+        <li>Сайтът автоматично смята годишния успех</li>
+      </ul>
+
+      <h3>За какво е?</h3>
+      <p>За да не смяташ на ръка и да не правиш грешки. Подходящ е за всички ученици.</p>
+    </div>
+  </div>
+
+  <!-- СРОЧЕН УСПЕХ -->
+  <div id="srochen" class="screen">
+    <div class="calc-header">
+      <button class="back-btn" onclick="showScreen('home')">←</button>
+      <h2>Срочен успех</h2>
+    </div>
+
+    <div class="result-box">
+      <div class="label">Среден успех за срока</div>
+      <div class="value" id="srochen-avg">—</div>
+      <div class="meta" id="srochen-count">Няма въведени оценки</div>
+    </div>
+
+    <div class="block">
+      <div class="block-title">Бързо добавяне</div>
+      <div class="grades-row">
+        <button class="g-btn" onclick="addSrochen(2)">2</button>
+        <button class="g-btn" onclick="addSrochen(3)">3</button>
+        <button class="g-btn" onclick="addSrochen(4)">4</button>
+        <button class="g-btn" onclick="addSrochen(5)">5</button>
+        <button class="g-btn" onclick="addSrochen(6)">6</button>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-title">Или напиши няколко</div>
+      <div class="input-row">
+        <input type="text" id="srochen-input" placeholder="6 5 4 6 5" onkeypress="if(event.key==='Enter') addSrochenInput()">
+        <button onclick="addSrochenInput()">Добави</button>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-title">Оценки</div>
+      <div class="chips" id="srochen-list"></div>
+      <button class="clear-btn" onclick="clearSrochen()">Изчисти всички</button>
+    </div>
+
+    <div class="note">Оценките се запазват автоматично</div>
+  </div>
+
+  <!-- ГОДИШЕН УСПЕХ -->
+  <div id="godishen" class="screen">
+    <div class="calc-header">
+      <button class="back-btn" onclick="showScreen('home')">←</button>
+      <h2>Годишен успех</h2>
+    </div>
+
+    <div class="result-box">
+      <div class="label">Годишен успех</div>
+      <div class="value" id="godishen-avg">—</div>
+      <div class="meta">Средно от двата срока</div>
+    </div>
+
+    <div class="block">
+      <div class="block-title">Въведи срочните оценки</div>
+      <div class="term-inputs">
+        <div class="term-box">
+          <label>I срок</label>
+          <input type="number" id="term1" min="2" max="6" step="0.01" placeholder="—" oninput="calcGodishen()">
+        </div>
+        <div class="term-box">
+          <label>II срок</label>
+          <input type="number" id="term2" min="2" max="6" step="0.01" placeholder="—" oninput="calcGodishen()">
+        </div>
+      </div>
+    </div>
+
+    <div class="note">Въведи средния успех от I и II срок</div>
+  </div>
+
+  <script>
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function openHelp() {
+      document.getElementById('helpModal').classList.add('show');
+    }
+
+    function closeHelp(e) {
+      if (!e || e.target.id === 'helpModal' || e.target.classList.contains('modal-close')) {
+        document.getElementById('helpModal').classList.remove('show');
+      }
+    }
+
+    let srochenGrades = JSON.parse(localStorage.getItem('srochenGrades')) || [];
+
+    function saveSrochen() {
+      localStorage.setItem('srochenGrades', JSON.stringify(srochenGrades));
+    }
+
+    function updateSrochen() {
+      const list = document.getElementById('srochen-list');
+      const avgEl = document.getElementById('srochen-avg');
+      const countEl = document.getElementById('srochen-count');
+
+      list.innerHTML = '';
+
+      if (srochenGrades.length === 0) {
+        avgEl.textContent = '—';
+        countEl.textContent = 'Няма въведени оценки';
+        return;
+      }
+
+      srochenGrades.forEach((g, i) => {
+        const chip = document.createElement('div');
+        chip.className = 'chip';
+        chip.innerHTML = `${g} <button onclick="removeSrochen(${i})">×</button>`;
+        list.appendChild(chip);
+      });
+
+      const sum = srochenGrades.reduce((a, b) => a + b, 0);
+      avgEl.textContent = (sum / srochenGrades.length).toFixed(2);
+      countEl.textContent = srochenGrades.length + (srochenGrades.length === 1 ? ' оценка' : ' оценки');
+    }
+
+    function addSrochen(n) {
+      srochenGrades.push(n);
+      saveSrochen();
+      updateSrochen();
+    }
+
+    function addSrochenInput() {
+      const input = document.getElementById('srochen-input');
+      const parts = input.value.trim().split(/[\s,;.]+/);
+      let added = false;
+
+      parts.forEach(p => {
+        const n = parseFloat(p.replace(',', '.'));
+        if (!isNaN(n) && n >= 2 && n <= 6) {
+          srochenGrades.push(Math.round(n * 100) / 100);
+          added = true;
+        }
+      });
+
+      if (added) {
+        input.value = '';
+        saveSrochen();
+        updateSrochen();
+      }
+    }
+
+    function removeSrochen(i) {
+      srochenGrades.splice(i, 1);
+      saveSrochen();
+      updateSrochen();
+    }
+
+    function clearSrochen() {
+      if (srochenGrades.length === 0) return;
+      if (confirm('Изчистване на всички оценки?')) {
+        srochenGrades = [];
+        saveSrochen();
+        updateSrochen();
+      }
+    }
+
+    function calcGodishen() {
+      const t1 = parseFloat(document.getElementById('term1').value);
+      const t2 = parseFloat(document.getElementById('term2').value);
+      const avgEl = document.getElementById('godishen-avg');
+
+      if (!isNaN(t1) && !isNaN(t2) && t1 >= 2 && t1 <= 6 && t2 >= 2 && t2 <= 6) {
+        avgEl.textContent = ((t1 + t2) / 2).toFixed(2);
+      } else {
+        avgEl.textContent = '—';
+      }
+    }
+
+    updateSrochen();
+  </script>
+</body>
+</html>
